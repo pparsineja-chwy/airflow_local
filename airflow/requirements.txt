@@ -1,0 +1,16 @@
+-c "https://raw.githubusercontent.com/apache/airflow/constraints-2.8.1/constraints-3.10.txt"
+
+apache-airflow[postgres, slack,vertica,snowflake,amazon,tableau,mysql]==2.8.1
+awswrangler
+boto3
+json2html
+numpy
+pandas
+plotly
+pyspark
+s3fs
+setuptools_scm
+snowflake-connector-python
+snowflake-sqlalchemy
+virtualenv
+wheel

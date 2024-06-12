@@ -1,0 +1,36 @@
+services:
+
+  airflow-db:
+    image: "postgres:13"
+    environment:
+      POSTGRES_USER: "airflow"
+      POSTGRES_PASSWORD: "airflow"
+      POSTGRES_DB: "airflow"
+    volumes:
+      - airflow-db-data:/var/lib/postgresql/data
+
+  airflow:
+    build: ./airflow/
+    command: airflow standalone
+    depends_on:
+      - airflow-db
+    ports:
+      - '127.0.0.1:8080:8080'
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags:ro
+      - ~/.aws:/root/.aws:ro
+    environment:
+      AWS_PROFILE: AWS-PROFILE-NAMEworker-pricing-analytics-dev #n2-dev #use the steps 1-3 in pricebot-pse github
+      AWS_DEFAULT_REGION: us-east-1
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: "postgresql+psycopg2://airflow:airflow@airflow-db/airflow"
+      AIRFLOW__CORE__EXECUTOR: "LocalExecutor"
+      AIRFLOW__CORE__FERNET_KEY: "vGOrt-3vUyb7VjWJCm8C-g1N0iJf7D7zqEDgWDA-FBI="
+      AIRFLOW__WEBSERVER__SECRET_KEY: "local-only/fi1ZOjzZ3TmJ9EVa9e9MosaIAKdYFbZb4p7S0mJ5jXhvgrXHp9rnLo1brK7+B368"
+      # https://airflow.apache.org/docs/apache-airflow/2.6.3/configurations-ref.html#dag-dir-list-interval
+      AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL: 10
+      AIRFLOW__WEBSERVER__SHOW_TRIGGER_FORM_IF_NO_PARAMS: "true"
+      AIRFLOW__SECRETS__BACKEND: "airflow.providers.amazon.aws.secrets.secrets_manager.SecretsManagerBackend"
+      AIRFLOW__SECRETS__BACKEND_KWARGS: "{\"connections_prefix\" : \"/chewy/dev/us-east-1/worker_pricing_analytics/airflow/connections/\", \"variables_prefix\" : \"/chewy/dev/us-east-1/worker_pricing_analytics/airflow/variables/\"}"
+
+volumes:
+  airflow-db-data: {}
